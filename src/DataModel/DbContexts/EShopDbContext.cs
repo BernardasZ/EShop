@@ -1,6 +1,8 @@
-﻿using DataModel.Mappings;
-using DataModel.Models;
+﻿using DataModel.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Reflection;
 
 namespace DataModel.DbContexts
 {
@@ -19,15 +21,25 @@ namespace DataModel.DbContexts
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
-			modelBuilder.ApplyConfiguration(new UserMapping());
-			modelBuilder.ApplyConfiguration(new CouponMapping());
-			modelBuilder.ApplyConfiguration(new UserRoleMapping());
-			modelBuilder.ApplyConfiguration(new ItemMapping());
-			modelBuilder.ApplyConfiguration(new OrderMapping());
-			modelBuilder.ApplyConfiguration(new ProviderMapping());
-			modelBuilder.ApplyConfiguration(new CustomerFormMapping());
+            base.OnModelCreating(modelBuilder);
 
-			base.OnModelCreating(modelBuilder);
-		}
+            var mappingInterface = typeof(IEntityTypeConfiguration<>);
+            var mappingTypes = typeof(EShopDbContext).GetTypeInfo().Assembly.GetTypes()
+                .Where(x => x.GetInterfaces()
+				.Any(y => y.GetTypeInfo().IsGenericType && y.GetGenericTypeDefinition() == mappingInterface));
+
+            var entityMethod = typeof(ModelBuilder)
+				.GetMethods()
+				.Single(x => x.Name == "Entity" && x.IsGenericMethod && x.ReturnType.Name == "EntityTypeBuilder`1");
+
+            foreach (var mappingType in mappingTypes)
+            {
+                var genericTypeArg = mappingType.GetInterfaces().Single().GenericTypeArguments.Single();
+                var genericEntityMethod = entityMethod.MakeGenericMethod(genericTypeArg);
+                var entityBuilder = genericEntityMethod.Invoke(modelBuilder, null);
+                var mapper = Activator.CreateInstance(mappingType);
+                mapper.GetType().GetMethod("Configure").Invoke(mapper, new[] { entityBuilder });
+            }
+        }
 	}
 }
