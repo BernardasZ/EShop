@@ -3,7 +3,7 @@
 namespace DataModel.Enums
 {
 	[Flags]
-	public enum RoleEnum: Int16
+	public enum RoleEnum
 	{
 		Admin = 0,
 		Customer = 1
