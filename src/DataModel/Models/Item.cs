@@ -10,12 +10,13 @@ namespace DataModel.Models
 		public string Code { get; set; }
 		public string Name { get; set; }
 		public int Quantity { get; set; }
+		public decimal Price { get; set; }
 		public string Description { get; set; }
 		public DateTime InsertionDate { get; set; }
 		public byte[] RowVertion { get; set; }
 
-		public ICollection<Coupon> Coupons { get; } = new List<Coupon>();
+		public ICollection<Coupon> Coupons { get; set; } = new List<Coupon>();
 		public ICollection<Provider> Providers { get; } = new List<Provider>();
-		public ICollection<Order> Orders { get; } = new List<Order>();
+		public ICollection<OrderItem> OrderItems { get; } = new List<OrderItem>();
 	}
 }

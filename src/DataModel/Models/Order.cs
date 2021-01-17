@@ -15,6 +15,6 @@ namespace DataModel.Models
 
 
 		public CustomerForm CustomerForm { get; set; }
-		public ICollection<Item> Items { get; } = new List<Item>();
+		public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 	}
 }

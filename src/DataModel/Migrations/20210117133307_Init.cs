@@ -35,6 +35,7 @@ namespace DataModel.Migrations
                     item_code = table.Column<string>(type: "varchar(20)", nullable: false),
                     item_name = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
                     quantity = table.Column<int>(type: "int", nullable: false),
+                    item_price = table.Column<decimal>(type: "decimal(19,4)", nullable: false),
                     description = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: true),
                     ins_dt = table.Column<DateTime>(type: "datetime", nullable: false, defaultValueSql: "GETDATE()"),
                     row_version = table.Column<byte[]>(type: "timestamp", nullable: true)
@@ -199,24 +200,27 @@ namespace DataModel.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ItemOrder",
+                name: "order_item",
                 columns: table => new
                 {
-                    ItemsItemId = table.Column<int>(type: "int", nullable: false),
-                    OrdersOrderId = table.Column<int>(type: "int", nullable: false)
+                    order_id = table.Column<int>(type: "int", nullable: false),
+                    item_id = table.Column<int>(type: "int", nullable: false),
+                    item_price = table.Column<decimal>(type: "decimal(19,4)", nullable: false),
+                    item_discount = table.Column<decimal>(type: "decimal(19,4)", nullable: false),
+                    quantity = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ItemOrder", x => new { x.ItemsItemId, x.OrdersOrderId });
+                    table.PrimaryKey("PK_order_item", x => new { x.order_id, x.item_id });
                     table.ForeignKey(
-                        name: "FK_ItemOrder_item_ItemsItemId",
-                        column: x => x.ItemsItemId,
+                        name: "FK_order_item_item_item_id",
+                        column: x => x.item_id,
                         principalTable: "item",
                         principalColumn: "item_id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ItemOrder_order_OrdersOrderId",
-                        column: x => x.OrdersOrderId,
+                        name: "FK_order_item_order_order_id",
+                        column: x => x.order_id,
                         principalTable: "order",
                         principalColumn: "order_id",
                         onDelete: ReferentialAction.Cascade);
@@ -235,11 +239,6 @@ namespace DataModel.Migrations
                 filter: "[user_id] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ItemOrder_OrdersOrderId",
-                table: "ItemOrder",
-                column: "OrdersOrderId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ItemProvider_ProvidersProviderId",
                 table: "ItemProvider",
                 column: "ProvidersProviderId");
@@ -248,6 +247,11 @@ namespace DataModel.Migrations
                 name: "IX_order_customer_form_id",
                 table: "order",
                 column: "customer_form_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_order_item_item_id",
+                table: "order_item",
+                column: "item_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_user_user_role_id",
@@ -261,22 +265,22 @@ namespace DataModel.Migrations
                 name: "CouponItem");
 
             migrationBuilder.DropTable(
-                name: "ItemOrder");
+                name: "ItemProvider");
 
             migrationBuilder.DropTable(
-                name: "ItemProvider");
+                name: "order_item");
 
             migrationBuilder.DropTable(
                 name: "coupon");
 
             migrationBuilder.DropTable(
-                name: "order");
+                name: "provider");
 
             migrationBuilder.DropTable(
                 name: "item");
 
             migrationBuilder.DropTable(
-                name: "provider");
+                name: "order");
 
             migrationBuilder.DropTable(
                 name: "customer_form");

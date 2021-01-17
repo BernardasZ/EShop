@@ -182,11 +182,16 @@ namespace DataModel.Migrations
                         .HasColumnType("nvarchar(250)")
                         .HasColumnName("item_name");
 
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(19,4)")
+                        .HasColumnName("item_price");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int")
                         .HasColumnName("quantity");
 
                     b.Property<byte[]>("RowVertion")
+                        .IsConcurrencyToken()
                         .HasColumnType("timestamp")
                         .HasColumnName("row_version");
 
@@ -225,6 +230,35 @@ namespace DataModel.Migrations
                     b.HasIndex("CustomerFormId");
 
                     b.ToTable("order");
+                });
+
+            modelBuilder.Entity("DataModel.Models.OrderItem", b =>
+                {
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int")
+                        .HasColumnName("order_id");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("int")
+                        .HasColumnName("item_id");
+
+                    b.Property<decimal>("Discount")
+                        .HasColumnType("decimal(19,4)")
+                        .HasColumnName("item_discount");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(19,4)")
+                        .HasColumnName("item_price");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int")
+                        .HasColumnName("quantity");
+
+                    b.HasKey("OrderId", "ItemId");
+
+                    b.HasIndex("ItemId");
+
+                    b.ToTable("order_item");
                 });
 
             modelBuilder.Entity("DataModel.Models.Provider", b =>
@@ -341,21 +375,6 @@ namespace DataModel.Migrations
                     b.ToTable("user_role");
                 });
 
-            modelBuilder.Entity("ItemOrder", b =>
-                {
-                    b.Property<int>("ItemsItemId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OrdersOrderId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ItemsItemId", "OrdersOrderId");
-
-                    b.HasIndex("OrdersOrderId");
-
-                    b.ToTable("ItemOrder");
-                });
-
             modelBuilder.Entity("ItemProvider", b =>
                 {
                     b.Property<int>("ItemsItemId")
@@ -406,6 +425,25 @@ namespace DataModel.Migrations
                     b.Navigation("CustomerForm");
                 });
 
+            modelBuilder.Entity("DataModel.Models.OrderItem", b =>
+                {
+                    b.HasOne("DataModel.Models.Item", "Item")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataModel.Models.Order", "Order")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Item");
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("DataModel.Models.User", b =>
                 {
                     b.HasOne("DataModel.Models.UserRole", "UserRole")
@@ -415,21 +453,6 @@ namespace DataModel.Migrations
                         .IsRequired();
 
                     b.Navigation("UserRole");
-                });
-
-            modelBuilder.Entity("ItemOrder", b =>
-                {
-                    b.HasOne("DataModel.Models.Item", null)
-                        .WithMany()
-                        .HasForeignKey("ItemsItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DataModel.Models.Order", null)
-                        .WithMany()
-                        .HasForeignKey("OrdersOrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("ItemProvider", b =>
@@ -452,10 +475,19 @@ namespace DataModel.Migrations
                     b.Navigation("Orders");
                 });
 
+            modelBuilder.Entity("DataModel.Models.Item", b =>
+                {
+                    b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("DataModel.Models.Order", b =>
+                {
+                    b.Navigation("OrderItems");
+                });
+
             modelBuilder.Entity("DataModel.Models.User", b =>
                 {
-                    b.Navigation("CustomerForm")
-                        .IsRequired();
+                    b.Navigation("CustomerForm");
                 });
 
             modelBuilder.Entity("DataModel.Models.UserRole", b =>
